@@ -1,10 +1,8 @@
 from typing import Any
 
 from fastapi import FastAPI
-from pymongo import MongoClient
-from pymongo.collection import Collection
 
-from core.stocks import StocksEndpoints
+from core.stocks import StocksEndpoints, MongoCl
 
 # # TODO(kba): move logger to config file
 # logger = logging.getLogger()
@@ -30,50 +28,14 @@ from core.stocks import StocksEndpoints
 #     return app
 
 
-MONGO_HOST = "127.0.0.1"
-MONGO_PORT = 27017
-
-
-class MongoCl:
-    col_stocks: Collection
-
-    def __init__(self) -> None:
-        # MongoDB connection setup
-        self.client = MongoClient(MONGO_HOST, MONGO_PORT)
-        self.db = self.client["db_name"]
-
-        self.provision_mongo()
-        self.col_stocks = self.db["stocks"]
-
-    def provision_mongo(self) -> None:
-        collections = self.db.list_collection_names()
-        if "stocks" not in collections:
-            self.db.create_collection("stocks")
-            items = [
-                {"name": "air liquide", "price": 150.0},
-                {"name": "total", "price": 50.0},
-            ]
-            self.db["stocks"].insert_many(items)
-
-
 def connect_mongodb() -> MongoCl:
-    mongo = MongoCl()
-    return mongo
+    return MongoCl()
 
 
-def format_mongodb_reponse(data: list[Any]) -> list[Any]:
-    output = []
-
-    for document in data:
-        document["id"] = str(document.pop("_id"))
-        output.append(document)
-
-    return output
-
-
-def create_server(mongo: MongoCl, test_config=None) -> FastAPI:
+def create_server(mongodb: MongoCl, test_config=None) -> FastAPI:
     # Create an instance of FastAPI
     app = FastAPI()
+    stocks_endpoints = StocksEndpoints(mongodb)
 
     ##################
     # Define endpoints
@@ -84,15 +46,11 @@ def create_server(mongo: MongoCl, test_config=None) -> FastAPI:
     # Define the GET endpoint
     @app.get("/")
     def get_root() -> dict[str, Any]:
-        # Read data from MongoDB collection
-        stocks: list[Any] = mongo.col_stocks.find()  # type:ignore
-        return {
-            "stocks": format_mongodb_reponse(stocks),
-        }
+        return {"message": "Hello world!"}
 
     @app.get("/stocks")
-    def get_stocks() -> list[str]:
-        return StocksEndpoints.get()
+    def get_stocks() -> list[dict[str, Any]]:
+        return stocks_endpoints.get()
 
     @app.post("/stocks", status_code=201)
     def post_stocks() -> dict[str, Any]:
@@ -101,7 +59,7 @@ def create_server(mongo: MongoCl, test_config=None) -> FastAPI:
         parsed_body = {}
 
         # Store data
-        StocksEndpoints.post(parsed_body)
+        stocks_endpoints.post(parsed_body)
         return {}
 
     @app.delete("/stocks", status_code=204)
