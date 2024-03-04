@@ -1,0 +1,8 @@
+# Deps
+pymongo
+fastapi
+requests~=2.25.1
+uvicorn
+
+# Dev deps
+black~=24.1.1
