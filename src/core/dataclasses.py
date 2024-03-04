@@ -1,14 +1,7 @@
-class Stock:
-    name: str
-    ticker: str
-    price: float
+from pydantic import BaseModel
 
-    def __init__(
-        self,
-        name: str,
-        ticker: str,
-        price: float,
-    ) -> None:
-        self.name = name
-        self.ticker = ticker
-        self.price = price
+
+class Stock(BaseModel):
+    name: str
+    price: float
+    # ticker: str

@@ -3,6 +3,7 @@ from typing import Any
 from fastapi import FastAPI
 
 from core.stocks import StocksEndpoints, MongoCl
+from core.dataclasses import Stock
 
 # # TODO(kba): move logger to config file
 # logger = logging.getLogger()
@@ -53,13 +54,10 @@ def create_server(mongodb: MongoCl, test_config=None) -> FastAPI:
         return stocks_endpoints.get()
 
     @app.post("/stocks", status_code=201)
-    def post_stocks() -> dict[str, Any]:
-        # Parse input
-        # parsed_body = request.json
-        parsed_body = {}
-
+    def post_stocks(stock: Stock) -> dict[str, Any]:
         # Store data
-        stocks_endpoints.post(parsed_body)
+        stocks_endpoints.post(stock.model_dump())
+
         return {}
 
     @app.delete("/stocks", status_code=204)

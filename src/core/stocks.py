@@ -55,6 +55,10 @@ class StocksEndpoints:
         return format_mongodb_reponse(stocks)
 
     def post(self, data: dict[str, Any]) -> dict[str, Any]:
+        # Check data:
+        if set(data.keys()) != {"name", "price"}:
+            raise ValueError(f"Keys are incorrect: {','.join(data.keys())}")
+        self.mongodb.db["stocks"].insert_one(data)
         return {}
 
     def delete(self, index: str) -> None:
