@@ -23,11 +23,6 @@ class MongoCl:
         collections = self.db.list_collection_names()
         if "stocks" not in collections:
             self.db.create_collection("stocks")
-            items = [
-                {"name": "air liquide", "price": 150.0},
-                {"name": "total", "price": 50.0},
-            ]
-            self.db["stocks"].insert_many(items)
 
 
 ########
@@ -55,10 +50,13 @@ class StocksEndpoints:
         return format_mongodb_reponse(stocks)
 
     def post(self, data: dict[str, Any]) -> dict[str, Any]:
-        # Check data:
+        # Check data
         if set(data.keys()) != {"name", "price"}:
             raise ValueError(f"Keys are incorrect: {','.join(data.keys())}")
+
+        # Insert data
         self.mongodb.db["stocks"].insert_one(data)
+
         return {}
 
     def delete(self, index: str) -> None:

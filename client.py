@@ -19,6 +19,12 @@ def get_parser() -> ArgumentParser:
 def provision() -> None:
     items = [
         {"name": "air liquide", "price": 150.0},
+        {"name": "engie", "price": 50.0},
+        {"name": "lvmh", "price": 50.0},
+        {"name": "loreal", "price": 50.0},
+        {"name": "hermes", "price": 50.0},
+        {"name": "kering", "price": 50.0},
+        {"name": "michelin", "price": 50.0},
         {"name": "total", "price": 50.0},
     ]
 
