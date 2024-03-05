@@ -13,19 +13,24 @@ def get_parser() -> ArgumentParser:
     action.add_parser("provision")
     action.add_parser("get")
 
+    delete: ArgumentParser = action.add_parser("delete")
+    delete.add_argument(
+        "--name", type=str, required=True, help="Name of stock to delete"
+    )
+
     return parser
 
 
 def provision() -> None:
     items = [
-        {"name": "air liquide", "price": 150.0},
-        {"name": "engie", "price": 50.0},
-        {"name": "lvmh", "price": 50.0},
-        {"name": "loreal", "price": 50.0},
-        {"name": "hermes", "price": 50.0},
-        {"name": "kering", "price": 50.0},
-        {"name": "michelin", "price": 50.0},
-        {"name": "total", "price": 50.0},
+        {"name": "air liquide", "ticker": "air", "bourso_address": "a"},
+        {"name": "engie", "ticker": "engie", "bourso_address": "a"},
+        {"name": "lvmh", "ticker": "lvmh", "bourso_address": "a"},
+        {"name": "loreal", "ticker": "loreal", "bourso_address": "a"},
+        {"name": "hermes", "ticker": "hermes", "bourso_address": "a"},
+        {"name": "kering", "ticker": "kering", "bourso_address": "a"},
+        {"name": "michelin", "ticker": "michelin", "bourso_address": "a"},
+        {"name": "total", "ticker": "total", "bourso_address": "a"},
     ]
 
     session = Session()
@@ -45,17 +50,23 @@ def get_stocks() -> None:
         print("Response content", resp.text)
 
 
+def delete_stock(name: str) -> None:
+    session = Session()
+    resp = session.delete(f"http://{SERVER_HOST}:{SERVER_PORT}/stocks?name={name}")
+    print("Response:", resp.status_code, resp.text)
+
+
 def main() -> None:
     # Parse args
     parser = get_parser()
     args = parser.parse_args()
 
-    print(args.action)
-
-    if args.action == "provision":
-        provision()
-    elif args.action == "get":
+    if args.action == "get":
         get_stocks()
+    elif args.action == "delete":
+        delete_stock(args.name)
+    elif args.action == "provision":
+        provision()
     else:
         print("Do nothing")
 

@@ -57,11 +57,10 @@ def create_server(mongodb: MongoCl, test_config=None) -> FastAPI:
     def post_stocks(stock: Stock) -> dict[str, Any]:
         # Store data
         stocks_endpoints.post(stock.model_dump())
-
         return {}
 
     @app.delete("/stocks", status_code=204)
-    def delete_stocks() -> None:
-        raise NotImplementedError()
+    def delete_stocks(name: str) -> None:
+        stocks_endpoints.delete(name)
 
     return app

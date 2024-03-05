@@ -37,6 +37,11 @@ def format_mongodb_reponse(data: list[Any]) -> list[Any]:
     return output
 
 
+# TODO(kba): Generate UUID for each stock
+# TODO(kba): Reject stock duplicates (on name)
+# TODO(kba): Create endpoint to get prices from boursorama
+
+
 class StocksEndpoints:
     mongodb: MongoCl
 
@@ -49,15 +54,9 @@ class StocksEndpoints:
 
         return format_mongodb_reponse(stocks)
 
-    def post(self, data: dict[str, Any]) -> dict[str, Any]:
-        # Check data
-        if set(data.keys()) != {"name", "price"}:
-            raise ValueError(f"Keys are incorrect: {','.join(data.keys())}")
-
+    def post(self, data: dict[str, Any]) -> None:
         # Insert data
         self.mongodb.db["stocks"].insert_one(data)
 
-        return {}
-
-    def delete(self, index: str) -> None:
-        return None
+    def delete(self, name: str) -> None:
+        self.mongodb.col_stocks.delete_many({"name": name})
